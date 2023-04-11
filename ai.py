@@ -5,6 +5,9 @@ class AIPlayer:
         self.game = game
         self.player_number = player_number
         self.hand = []
+        self.location_powers = [0, 0, 0]  
+        self.energy = 0
+
 
     def choose_card_and_location(self, energy):
         playable_cards = [card for card in self.hand if card.energy_cost <= energy]  # Use energy instead of energy_cost

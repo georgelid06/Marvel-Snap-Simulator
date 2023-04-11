@@ -11,13 +11,25 @@ class Game:
         self.current_location = 0
 
     def play_cards(self, card, player_number, location_index):
+        player = self.players[player_number - 1]
         location = self.locations[location_index]
-        location.add_card(card, player_number)
+        card.owner = player_number - 1
         card.location = location
+        location.cards.append(card)  # Append the card object to the list, not the list itself
+        if location.effect is not None:  # Check if the effect function is not None
+            location.effect(card, player)  # Pass both the card and player objects
+        if card in player.hand:  # Check if the card is in the player's hand
+            player.hand.remove(card)
 
-        # Apply the location's effect on the card
-        if location.effect:
-            location.effect(card)
+    def reveal_location(self):
+        location = self.locations[self.current_location]
+
+        for player in self.players: 
+            if location.on_reveal_effect:
+                location.on_reveal_effect(player)
+        
+        self.current_location += 1
+
 
     def generate_locations(self):
         return random.sample(self.all_locations, 3)
@@ -25,13 +37,12 @@ class Game:
     def prepare_game(self):
         for player in self.players:
             player.hand = player.draw_starting_hand(self.all_cards)
-
         self.reveal_location()
 
     def end_of_turn(self):
         for location in self.locations:
             if location.end_of_turn_effect:
-                location.end_of_turn_effect(self.current_turn)
+                location.end_of_turn_effect(location, self.current_turn)
 
         self.current_turn += 1
 
@@ -69,36 +80,38 @@ class Game:
 
 
     def determine_winner(self):
-        location_wins = [0, 0]
+        player_powers = [0, 0]
 
-        for location in self.locations:
-            winner = location.determine_winner()
-            if winner is not None:
-                location_wins[winner] += 1
+        for cards_list in self.cards:
+            for card in cards_list:
+                power = card.power
+                player_powers[card.owner] += power
 
-        if location_wins[0] > location_wins[1]:
+        if player_powers[0] > player_powers[1]:
             return 0
-        elif location_wins[1] > location_wins[0]:
+        elif player_powers[1] > player_powers[0]:
             return 1
         else:
             return None
 
     def display_game_state(self):
-        print(f"Turn: {self.turn}")
-        print("Locations:")
+        print("Current game state:")
         for i, location in enumerate(self.locations):
-            print(f"  Location {i + 1}: {location.name} (Effect: {location.effect})")
-            print(f"    Player 1 Power: {self.players[0].location_powers[i]}")
-            print(f"    Player 2 Power: {self.players[1].location_powers[i]}")
+            print(f"  Location {i + 1}: {location.name}")
+            print(f"    Player 1 Power: {location.calculate_total_power(0)}")
+            print(f"    Player 2 Power: {location.calculate_total_power(1)}")
             print("    Cards:")
-            for card in location.cards:
-                print(f"      {card.name} (Power: {card.power}, Owner: Player {card.owner + 1})")
+            print(f"    DEBUG: location.cards: {location.cards}")  # Add this line for debugging
+            for card in location.cards:  # Use the original loop
+                owner_text = f"Player {card.owner + 1}" if card.owner is not None else "No owner"
+                print(f"      {card.name} (Power: {card.power}, Owner: {owner_text})")
         print("\nPlayer Hands:")
         for i, player in enumerate(self.players):
             print(f"  Player {i + 1} Hand:")
             for card in player.hand:
                 print(f"    {card.name} (Power: {card.power})")
         print("\n")
+
 
     def play_game(self):
         self.prepare_game()
