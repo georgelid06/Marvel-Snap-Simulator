@@ -9,7 +9,7 @@ class Location:
         self.no_destroy = no_destroy
         self.can_play_card = can_play_card
         self.end_of_turn_effect = end_of_turn_effect
-        self.cards = [[], []]
+        self.cards = []
 
     def add_card(self, card, player_number):
         self.cards[player_number].append(card)  # Update this method to work with the new structure
@@ -18,7 +18,7 @@ class Location:
         return f"{self.name} (Effect: {self.effect_description})"
     
     def calculate_total_power(self, player_number):
-        total_power = sum(card.power for card in self.cards[player_number])
+        total_power = sum(card.power for card in self.cards if card.owner == player_number)
         return total_power
 
 
@@ -45,12 +45,23 @@ def generate_all_locations():
     def tinkerers_workshop_effect(card, player):
         player.energy += 1
 
-    def throne_room_effect(card, player):
-        location = card.location
-        all_cards = [c for player_cards in location.cards for c in player_cards]  # Flatten the list of lists
+    def throne_room_effect(location, card, player):
+        all_cards = []
+        for player_cards in location.cards:
+            if isinstance(player_cards, list):  # Check if player_cards is a list
+                all_cards.extend(player_cards)  # Add all cards from the list
+            else:  # If it's a single card, handle it directly
+                all_cards.append(player_cards)
+
         max_power = max(c.power for c in all_cards)
-        if card.power == max_power:
-            card.power *= 2
+        strongest_cards = [c for c in all_cards if c.power == max_power]
+
+        for c in strongest_cards:
+            if c.owner != player.player_number:
+                player.hand.append(c)
+                location.remove_card(c)
+
+
 
 
     def the_big_house_effect(card, player):

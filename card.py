@@ -1,3 +1,5 @@
+from game import Game
+from ai import AIPlayer
 class Card:
     def __init__(self, name, energy_cost, power, ability_description, ability=None):
         self.name = name
@@ -19,11 +21,12 @@ class Ability:
 def generate_all_cards():
     # Define the card abilities/effects here
     def hawkeye_effect(card):
-        if card.game.current_turn == card.game.turn_played + 1:
+         if card.game.current_turn == card.game.turn_played + 1:
             return 2
-        return 0
+         else:
+            return 0
 
-    def medusa_effect(location_index, game):
+    def medusa_effect(location_index):
         if location_index == 1:  # Middle location
             return 2
         return 0
@@ -31,9 +34,6 @@ def generate_all_cards():
     def punisher_effect(location, card):
         opposing_cards = len([c for c in location.cards if c.owner != card.owner])
         return opposing_cards
-
-    def quicksilver_effect(player):
-        player.hand.append(quicksilver_card)
 
     def sentinel_effect(player):
         player.hand.append(sentinel_card)
@@ -47,7 +47,6 @@ def generate_all_cards():
     hawkeye_ability = Ability(hawkeye_effect)
     medusa_ability = Ability(medusa_effect)
     punisher_ability = Ability(punisher_effect)
-    quicksilver_ability = Ability(quicksilver_effect)
     sentinel_ability = Ability(sentinel_effect)
     star_lord_ability = Ability(star_lord_effect)
 
@@ -60,7 +59,7 @@ def generate_all_cards():
         Card("Medusa", 2, 2, "On Reveal: If this is at the middle Location, +2 Power.", medusa_ability),
         Card("Misty Knight", 1, 2, "No ability"),
         Card("The Punisher", 3, 2, "Ongoing: +1 Power for each opposing card at this Location.", punisher_ability),
-        Card("Quicksilver", 1, 2, "Starts in your opening hand.", quicksilver_ability),
+        Card("Quicksilver", 1, 2, ""),  # Remove the "Starts in your opening hand" ability description
         Card("Sentinel", 2, 3, "On Reveal: Add another Sentinel to your hand.", sentinel_ability),
         Card("Shocker", 2, 3, "No ability"),
         Card("Star Lord", 2, 2, "On Reveal: If your opponent played a card here this turn, +3 Power.", star_lord_ability),
@@ -68,7 +67,6 @@ def generate_all_cards():
     ]
 
     # We need a reference to Quicksilver and Sentinel cards for their abilities
-    quicksilver_card = next(card for card in all_cards if card.name == "Quicksilver")
     sentinel_card = next(card for card in all_cards if card.name == "Sentinel")
 
     # Continue generating the cards here
