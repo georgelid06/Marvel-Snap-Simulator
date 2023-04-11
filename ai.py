@@ -3,7 +3,7 @@ import random
 class AIPlayer:
     def __init__(self, game, player_number):
         self.game = game
-        self.player_number = player_number + 1  # Increment player_number by 1
+        self.player_number = player_number + 1
         self.location_powers = [0, 0, 0]  
         self.energy = 0
         self.deck = self.draw_starting_hand(self.game.all_cards)
@@ -11,7 +11,7 @@ class AIPlayer:
         self.deck = self.deck[4:]
 
     def choose_card_and_location(self, energy):
-        playable_cards = [card for card in self.hand if card.energy_cost <= energy]  # Use energy instead of energy_cost
+        playable_cards = [card for card in self.hand if card.energy_cost <= energy]
         if not playable_cards:
             return None, None
 

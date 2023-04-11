@@ -12,7 +12,7 @@ class Location:
         self.cards = []
 
     def add_card(self, card, player_number):
-        self.cards[player_number].append(card)  # Update this method to work with the new structure
+        self.cards[player_number].append(card)
 
     def __repr__(self):
         return f"{self.name} (Effect: {self.effect_description})"
@@ -48,9 +48,9 @@ def generate_all_locations():
     def throne_room_effect(location, card, player):
         all_cards = []
         for player_cards in location.cards:
-            if isinstance(player_cards, list):  # Check if player_cards is a list
-                all_cards.extend(player_cards)  # Add all cards from the list
-            else:  # If it's a single card, handle it directly
+            if isinstance(player_cards, list): 
+                all_cards.extend(player_cards)
+            else:
                 all_cards.append(player_cards)
 
         max_power = max(c.power for c in all_cards)

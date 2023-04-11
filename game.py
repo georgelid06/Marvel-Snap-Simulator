@@ -28,14 +28,14 @@ class Game:
                 card.ability.effect(location, card)
 
 
-        if location.effect is not None:  # Check if the effect function is not None
-            location.effect(card, player)  # Pass both the card and player objects
+        if location.effect is not None:
+            location.effect(card, player)
 
-        if card in player.hand:  # Check if the card is in the player's hand
+        if card in player.hand:
             player.hand.remove(card)
 
     def reveal_location(self):
-        if self.current_location >= len(self.locations):  # Add this line to check if the current_location is within bounds
+        if self.current_location >= len(self.locations):
             return
 
         location = self.locations[self.current_location]
@@ -65,7 +65,7 @@ class Game:
 
     def play_round(self):
         for player in self.players:
-            player.draw_card(self.all_cards)  # Pass all_cards here
+            player.draw_card(self.all_cards)
             energy = self.energy
             while energy > 0:
                 card, location_index = player.choose_card_and_location(energy)
@@ -136,10 +136,7 @@ class Game:
             self.play_round()
             self.end_of_turn()
             self.display_game_state()
-
-            # Increase energy after the first three turns
-            if turn < 2:
-                self.energy += 1
+            self.energy += 1
 
         winner = self.determine_winner()
         if winner is not None:

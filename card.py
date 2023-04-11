@@ -59,15 +59,13 @@ def generate_all_cards():
         Card("Medusa", 2, 2, "On Reveal: If this is at the middle Location, +2 Power.", medusa_ability),
         Card("Misty Knight", 1, 2, "No ability"),
         Card("The Punisher", 3, 2, "Ongoing: +1 Power for each opposing card at this Location.", punisher_ability),
-        Card("Quicksilver", 1, 2, ""),  # Remove the "Starts in your opening hand" ability description
+        Card("Quicksilver", 1, 2, ""),
         Card("Sentinel", 2, 3, "On Reveal: Add another Sentinel to your hand.", sentinel_ability),
         Card("Shocker", 2, 3, "No ability"),
         Card("Star Lord", 2, 2, "On Reveal: If your opponent played a card here this turn, +3 Power.", star_lord_ability),
         Card("The Thing", 4, 6, "No ability"),
     ]
 
-    # We need a reference to Quicksilver and Sentinel cards for their abilities
     sentinel_card = next(card for card in all_cards if card.name == "Sentinel")
 
-    # Continue generating the cards here
     return all_cards
