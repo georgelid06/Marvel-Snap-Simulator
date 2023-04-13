@@ -79,21 +79,17 @@ class Game:
             player.energy += 1
 
     def play_turn(self):
-        self.players[0].turn_energy_spent = 0
-        self.players[1].turn_energy_spent = 0
-
-        for player in self.players:
-            card, location_index = player.choose_card_and_location()
-            if card is not None and location_index is not None:
-                self.play_cards(card, player.player_number, location_index)
-                # Draw a new card
-                player.draw_card(self.all_cards)
-
-            # Reset energy for the next player
-            player.energy = self.current_turn
-
+        for player_number, player in enumerate(self.players, 1):
+            print(f"Player {player_number}'s Turn:")
+            player.choose_card_and_location()
+            for card in player.cards_played:
+                location = self.locations[card.location - 1]
+                location.add_card(card)
+                player.energy -= card.energy_cost
+                player.turn_energy_spent += card.energy_cost
+            # Update cards_played_by_turn for the current player
+            self.cards_played_by_turn[player_number - 1][self.current_turn] = player.cards_played
         self.current_turn += 1
-        self.end_of_turn()
 
 
     def display_game_state(self):
