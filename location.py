@@ -10,9 +10,8 @@ class Location:
         self.can_play_card = can_play_card
         self.end_of_turn_effect = end_of_turn_effect
         self.cards = []
-
-    def add_card(self, card, player_number):
-        self.cards[player_number].append(card)
+        self.cards_this_turn = []
+        self.revealed = False
 
     def __repr__(self):
         return f"{self.name} (Effect: {self.effect_description})"
@@ -20,7 +19,6 @@ class Location:
     def calculate_total_power(self, player_number):
         total_power = sum(card.power for card in self.cards if card.owner == player_number)
         return total_power
-
 
     def determine_winner(self):
         player_powers = [0, 0]
@@ -45,13 +43,9 @@ def generate_all_locations():
     def tinkerers_workshop_effect(card, player):
         player.energy += 1
 
-    def throne_room_effect(location, card, player):
-        all_cards = []
-        for player_cards in location.cards:
-            if isinstance(player_cards, list): 
-                all_cards.extend(player_cards)
-            else:
-                all_cards.append(player_cards)
+    def throne_room_effect(card, player):
+        location = card.location
+        all_cards = location.cards
 
         max_power = max(c.power for c in all_cards)
         strongest_cards = [c for c in all_cards if c.power == max_power]
@@ -59,10 +53,7 @@ def generate_all_locations():
         for c in strongest_cards:
             if c.owner != player.player_number:
                 player.hand.append(c)
-                location.remove_card(c)
-
-
-
+                location.cards.remove(c)
 
     def the_big_house_effect(card, player):
         if card.energy_cost in [4, 5, 6]:
@@ -70,24 +61,22 @@ def generate_all_locations():
 
     def negative_zone_effect(card, player):
         card.power -= 3
-
-    # Add these methods to the Location class to handle the specific effects
     def wakanda_no_destroy(location):
         pass  # Do not destroy cards in this location
 
     def the_vault_no_play_on_turn_six(location, current_turn):
-        return current_turn != 6  # Return False if the current turn is 6
+        return current_turn != 6
+
 
     def stark_tower_end_of_turn_five(location, current_turn):
         if current_turn == 5:
-            for cards_list in location.cards.values():
-                for card in cards_list:
-                    card.power += 2
+            for card in location.cards:  # Change this line
+                card.power += 2
 
     def murderworld_end_of_turn_three(location, current_turn):
         if current_turn == 3:
-            for cards_list in location.cards.values():
-                cards_list.clear()
+            location.cards.clear()  # Change this line
+
 
     # Generate all locations
     all_locations = [

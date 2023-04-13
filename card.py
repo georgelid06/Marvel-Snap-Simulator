@@ -1,5 +1,5 @@
-from game import Game
 from ai import AIPlayer
+
 class Card:
     def __init__(self, name, energy_cost, power, ability_description, ability=None):
         self.name = name
@@ -8,10 +8,11 @@ class Card:
         self.ability_description = ability_description
         self.ability = ability
         self.owner = None
+        self.turn_played = 0  # Add this line
+
 
     def __repr__(self):
         return f"{self.name} (Energy: {self.energy_cost}, Power: {self.power}, Ability: {self.ability_description})"
-
 
 class Ability:
     def __init__(self, effect):
@@ -20,30 +21,34 @@ class Ability:
 
 def generate_all_cards():
     # Define the card abilities/effects here
-    def hawkeye_effect(card):
-         if card.game.current_turn == card.game.turn_played + 1:
-            return 2
-         else:
-            return 0
+    def hawkeye_effect(card, game, location=None):  # Add the 'location' parameter
+        if game.current_turn == card.turn_played + 1:
+            return 4
+        return 0
 
-    def medusa_effect(location_index):
+    def medusa_effect(card, game, location_index):  # Add location_index parameter
         if location_index == 1:  # Middle location
             return 2
         return 0
 
-    def punisher_effect(location, card):
-        opposing_cards = len([c for c in location.cards if c.owner != card.owner])
-        return opposing_cards
+    def punisher_effect(card, game, location):
+        location = card.location
+        enemy_cards = [c for c in location.cards if c.owner != card.owner]
+        bonus_power = 2 * len(enemy_cards)
+        card.power += bonus_power
 
-    def sentinel_effect(player):
+
+    def sentinel_effect(card, game, location):  # Add the 'game' parameter
+        player = game.players[card.owner]  # Get the player from the game object
         player.hand.append(sentinel_card)
 
-    def star_lord_effect(location, card):
+
+    def star_lord_effect(card, game, location):  # Add the 'location' parameter
         opponent_played = any(c.owner != card.owner for c in location.cards_this_turn)
         if opponent_played:
             return 3
         return 0
-
+    
     hawkeye_ability = Ability(hawkeye_effect)
     medusa_ability = Ability(medusa_effect)
     punisher_ability = Ability(punisher_effect)
@@ -58,7 +63,7 @@ def generate_all_cards():
         Card("Iron Man", 5, 0, "Ongoing: Your total Power is doubled at this Location."),
         Card("Medusa", 2, 2, "On Reveal: If this is at the middle Location, +2 Power.", medusa_ability),
         Card("Misty Knight", 1, 2, "No ability"),
-        Card("The Punisher", 3, 2, "Ongoing: +1 Power for each opposing card at this Location.", punisher_ability),
+        Card("The Punisher", 3, 2, "Ongoing: +2 Power for each opposing card at this Location.", punisher_ability),
         Card("Quicksilver", 1, 2, ""),
         Card("Sentinel", 2, 3, "On Reveal: Add another Sentinel to your hand.", sentinel_ability),
         Card("Shocker", 2, 3, "No ability"),

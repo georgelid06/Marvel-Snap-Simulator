@@ -4,5 +4,5 @@ from game import Game
 
 all_cards = generate_all_cards()
 all_locations = generate_all_locations()
-game = Game(all_cards, all_locations)
+game = Game()
 game.play_game()
