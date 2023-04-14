@@ -8,8 +8,8 @@ class Card:
         self.ability_description = ability_description
         self.ability = ability
         self.owner = None
-        self.turn_played = 0  # Add this line
-
+        self.turn_played = 0
+        self.location = None
 
     def __repr__(self):
         return f"{self.name} (Energy: {self.energy_cost}, Power: {self.power}, Ability: {self.ability_description})"
@@ -21,29 +21,37 @@ class Ability:
 
 def generate_all_cards():
     # Define the card abilities/effects here
-    def hawkeye_effect(card, game, location=None):  # Add the 'location' parameter
+    def hawkeye_effect(card, game, card_owner):  # Add the 'location' parameter
         if game.current_turn == card.turn_played + 1:
             return 4
         return 0
 
-    def medusa_effect(card, game, location_index):  # Add location_index parameter
-        if location_index == 1:  # Middle location
+    def medusa_effect(card, game, card_owner):  # Add location_index parameter
+        if card.location == 1:  # Middle location
             return 2
         return 0
 
-    def punisher_effect(card, game, location):
+    def punisher_effect(card, game, card_owner):
         location = card.location
-        enemy_cards = [c for c in location.cards if c.owner != card.owner]
+        enemy_cards = [c for c in location.cards if c.owner != card_owner]
         bonus_power = 2 * len(enemy_cards)
         card.power += bonus_power
 
 
-    def sentinel_effect(card, game, location):  # Add the 'game' parameter
-        player = game.players[card.owner]  # Get the player from the game object
-        player.hand.append(sentinel_card)
+    def sentinel_effect(card, game, card_owner):
+        player = game.players[card_owner]  # Get the player from the game object
+        sentinel_card = None
+        for c in player.deck:
+            if c.name == "Sentinel":
+                sentinel_card = c
+                break
+
+        if sentinel_card is not None:
+            player.hand.append(sentinel_card)
 
 
-    def star_lord_effect(card, game, location):  # Add the 'location' parameter
+    def star_lord_effect(card, game, card_owner):  # Add the 'location' parameter
+        location = game.locations[card.location]
         opponent_played = any(c.owner != card.owner for c in location.cards_this_turn)
         if opponent_played:
             return 3
