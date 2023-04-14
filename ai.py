@@ -12,8 +12,8 @@ class AIPlayer:
         
 
     def choose_card_and_location(self):
-        playable_cards_indices = [i for i, card in enumerate(self.hand) if card.energy_cost <= self.energy]
-        playable_cards = [card for card in self.hand if card.energy_cost <= self.energy]
+        playable_cards_indices = [i for i, card in enumerate(self.hand) if self.game.locations[self.chosen_location_index].can_play_card(card, self.player_number - 1)]
+        playable_cards = [card for card in self.hand if self.game.locations[self.chosen_location_index].can_play_card(card, self.player_number - 1)]
         if not playable_cards_indices:
             return None, None
 

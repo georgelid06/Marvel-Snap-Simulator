@@ -31,8 +31,6 @@ class Game:
             card_copy.owner = player_number - 1
             card_copy.location = location_index
             location.cards.append(card_copy)
-            print(card.location)
-            print(location_index)
             card.location = location_index  # Set the location attribute
 
             location.cards_this_turn.append(card_copy)  # Add this line
@@ -129,49 +127,49 @@ class Game:
             self.reveal_cards(player_number)
 
     def display_game_state(self):
-        print("Turn", self.current_turn)
-        print("\nCards at each location:")
-        print("Player 1 (above) / Player 2 (below)")
+            print("Turn", self.current_turn)
+            print("\nCards at each location:")
+            print("Player 1 (above) / Player 2 (below)")
 
-        player1_cards_by_location = []
-        player2_cards_by_location = []
+            player1_cards_by_location = []
+            player2_cards_by_location = []
 
-        for location in self.locations:
-            player1_cards = [card.name for card in location.cards if card.owner == 0]
-            player2_cards = [card.name for card in location.cards if card.owner == 1]
+            for location in self.locations:
+                player1_cards = [f"{card.name} ({card.power})" if card.owner == 0 else "" for card in location.cards]
+                player2_cards = [f"{card.name} ({card.power})" if card.owner == 1 else "" for card in location.cards]
 
-            max_cards = max(len(player1_cards), len(player2_cards))
-            player1_cards += [''] * (max_cards - len(player1_cards))
-            player2_cards += [''] * (max_cards - len(player2_cards))
+                max_cards = max(len(player1_cards), len(player2_cards))
+                player1_cards += [''] * (max_cards - len(player1_cards))
+                player2_cards += [''] * (max_cards - len(player2_cards))
 
-            player1_cards_by_location.append(player1_cards)
-            player2_cards_by_location.append(player2_cards)
+                player1_cards_by_location.append(player1_cards)
+                player2_cards_by_location.append(player2_cards)
 
-        max_rows = max(len(cards) for cards in player1_cards_by_location + player2_cards_by_location)
+            max_rows = max(len(cards) for cards in player1_cards_by_location + player2_cards_by_location)
 
-        for row in range(max_rows):
-            for player1_cards in player1_cards_by_location:
-                print("{:^20}".format(player1_cards[row] if row < len(player1_cards) else ""), end=" ")
+            for row in range(max_rows):
+                for player1_cards in player1_cards_by_location:
+                    print("{:^20}".format(player1_cards[row] if row < len(player1_cards) else ""), end=" ")
+                print()
+
+            for location in self.locations:
+                print("{:^20}".format(location.name), end=" ")
             print()
 
-        for location in self.locations:
-            print("{:^20}".format(location.name), end=" ")
-        print()
+            for row in range(max_rows):
+                for player2_cards in player2_cards_by_location:
+                    print("{:^20}".format(player2_cards[row] if row < len(player2_cards) else ""), end=" ")
+                print()
 
-        for row in range(max_rows):
-            for player2_cards in player2_cards_by_location:
-                print("{:^20}".format(player2_cards[row] if row < len(player2_cards) else ""), end=" ")
-            print()
-
-        # Display decks and hands of both players
-        print("\nPlayer 1 deck and hand:")
-        print("Deck:", [card.name for card in self.players[0].deck])
-        print("Hand:", [card.name for card in self.players[0].hand])
-        print("\n")
-        print("Player 2 deck and hand:")
-        print("Deck:", [card.name for card in self.players[1].deck])
-        print("Hand:", [card.name for card in self.players[1].hand])
-        print("\n")
+            # Display decks and hands of both players
+            print("\nPlayer 1 deck and hand:")
+            print("Deck:", [card.name for card in self.players[0].deck])
+            print("Hand:", [f"{card.name} ({card.power})" for card in self.players[0].hand])
+            print("\n")
+            print("Player 2 deck and hand:")
+            print("Deck:", [card.name for card in self.players[1].deck])
+            print("Hand:", [f"{card.name} ({card.power})" for card in self.players[1].hand])
+            print("\n")
 
     def reveal_cards(self, player_number):
         player = self.players[player_number - 1]

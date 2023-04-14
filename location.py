@@ -16,7 +16,6 @@ class Location:
     def __str__(self):
         return f"{self.name} (Effect: {self.effect_description})"
 
-
     def __repr__(self):
         return f"{self.name} (Effect: {self.effect_description})"
     
@@ -40,6 +39,29 @@ class Location:
         else:
             return None
         
+    def can_play_card_at_location(card, location, current_turn):
+        # Check if the card's energy cost is less than or equal to the player's energy
+        if card.energy_cost > location.cards_this_turn[0].owner.energy:
+            return False
+
+        # Check if the location has a specific rule that prevents the card from being played
+        if location.name == "The Vault":
+            if current_turn == 6:
+                return False
+        elif location.name == "The Big House":
+            if card.energy_cost in [4, 5, 6]:
+                return False
+
+        # Check if the location has a general rule that prevents the card from being played
+        if location.can_play_card and not location.can_play_card(location, current_turn):
+            return False
+
+        # Check if the location already has 4 cards from the player
+        if sum(1 for c in location.cards if c.owner == card.owner) >= 4:
+            return False
+
+        return True
+
 def generate_all_locations():
 
     # Define location effects here

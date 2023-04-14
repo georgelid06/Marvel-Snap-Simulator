@@ -71,7 +71,7 @@ def generate_all_cards():
         Card("Iron Man", 5, 0, "Ongoing: Your total Power is doubled at this Location."),
         Card("Medusa", 2, 2, "On Reveal: If this is at the middle Location, +2 Power.", medusa_ability),
         Card("Misty Knight", 1, 2, "No ability"),
-        Card("The Punisher", 3, 2, "Ongoing: +2 Power for each opposing card at this Location.", punisher_ability),
+        #Card("The Punisher", 3, 2, "Ongoing: +2 Power for each opposing card at this Location.", punisher_ability),
         Card("Quicksilver", 1, 2, ""),
         Card("Sentinel", 2, 3, "On Reveal: Add another Sentinel to your hand.", sentinel_ability),
         Card("Shocker", 2, 3, "No ability"),
