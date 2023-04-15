@@ -34,9 +34,9 @@ def generate_all_cards():
         return 0
 
     def punisher_effect(card, game, card_owner):
-        location = card.location
-        enemy_cards = [c for c in location.cards if c.owner != card_owner]
-        bonus_power = 2 * len(enemy_cards)
+        location = game.locations[card.location]
+        enemy_card_count = sum(1 for c in location.cards if c.owner != card.owner)
+        bonus_power = 2 * enemy_card_count
         card.power += bonus_power
 
 
@@ -85,7 +85,7 @@ def generate_all_cards():
         Card("Iron Man", 5, 0, "Ongoing: Your total Power is doubled at this Location.", iron_man_ability),
         Card("Medusa", 2, 2, "On Reveal: If this is at the middle Location, +2 Power.", medusa_ability),
         Card("Misty Knight", 1, 2, "No ability"),
-        #Card("The Punisher", 3, 2, "Ongoing: +2 Power for each opposing card at this Location.", punisher_ability),
+        Card("The Punisher", 3, 2, "Ongoing: +2 Power for each opposing card at this Location.", punisher_ability),
         Card("Quicksilver", 1, 2, ""),
         Card("Sentinel", 2, 3, "On Reveal: Add another Sentinel to your hand.", sentinel_ability),
         Card("Shocker", 2, 3, "No ability"),

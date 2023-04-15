@@ -10,7 +10,6 @@ class AIPlayer:
         self.energy = 1  # Add this line to initialize energy
         self.deck = self.draw_starting_deck(all_cards)
         self.hand = self.draw_starting_hand(self.deck)
-        
 
 
     def choose_card_and_location(self):

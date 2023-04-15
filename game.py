@@ -19,6 +19,7 @@ class Game:
     def play_cards(self, card_index, player_number, location_index):
         player = self.players[player_number - 1]
         card = player.hand[card_index]  # Get the card from the hand using the index
+        card_copy = copy.deepcopy(card)  # Create a deep copy of the card to store in location.cards and player.played_cards
         location = self.locations[location_index]
 
         # Ensuring the location does not already have 4 cards from the player.
@@ -27,23 +28,23 @@ class Game:
             return
 
         if card.energy_cost <= player.energy:
-            card_copy = copy.deepcopy(card)  # Make a copy of the card
             card_copy.owner = player_number - 1
             card_copy.location = location_index
+            location.cards.append(card_copy)
+
             if player_number == 1:
                 location.player1_played_card = True
             else:
                 location.player2_played_card = True
 
-            card.location = location_index  # Set the location attribute
-            location.cards_this_turn.append(card_copy)  # Add this line
             player.hand.remove(card)
+            player.played_cards.append(card_copy)
 
-            if card_copy.ability is not None:
-                card_copy.ability.effect(card_copy, self, card_copy.owner)  # Updated this line
+            if card.ability is not None:
+                card.ability.effect(card_copy, self, card_copy.owner)  # Updated this line to use card_copy
 
             if location.effect is not None:
-                location.effect(card_copy, player, location_index)  # Updated this line
+                location.effect(card_copy, player, location_index)  # Updated this line to use card_copy
 
             # Consume the card's energy cost from the player's energy pool
             player.energy -= card.energy_cost
@@ -116,6 +117,7 @@ class Game:
             self.reveal_cards(player_number)
 
 
+
     def reveal_cards(self, player_number):
         player = self.players[player_number - 1]
         for card in player.played_cards:
@@ -130,6 +132,12 @@ class Game:
                         if location_card is not None:
                             location_card.power = card.power  # Update the power of the card in location.cards
                         print("Card: ", card.name, "Has increased from ", card.base_power, "to ", card.power)
+                    hawkeye_location = next((l for l in game.locations if l.effect_description == "On Reveal: If you play a card here next turn, +2 Power"), None)
+                    if hawkeye_location is not None and hawkeye_location.cards:
+                        hawkeye_card = next((c for c in hawkeye_location.cards if c.name == "Hawkeye"), None)
+                        if hawkeye_card is not None and hawkeye_card.turn_played == game.current_turn - 1:
+                            print("Hawkeye was played last turn")
+
 
     def apply_ongoing_abilities(self):
         for player_number in range(1, 3):
@@ -148,8 +156,7 @@ class Game:
         # Reset the cards_this_turn list for each location
         for location in self.locations:
             location.player1_played_card = False
-            location.player1_played_card = False
-
+            location.player2_played_card = False
 
         for player in self.players:
             player.draw_card()
@@ -169,8 +176,9 @@ class Game:
         for location in self.locations:
             player1_power = location.calculate_total_power(0)
             player2_power = location.calculate_total_power(1)
-            player1_cards = [f"{card.name} ({card.power})" if card.owner == 0 else "" for card in location.cards]
-            player2_cards = [f"{card.name} ({card.power})" if card.owner == 1 else "" for card in location.cards]
+            location_index = self.locations.index(location)
+            player1_cards = [f"{card.name} ({card.power})" for card in location.cards if card.owner == 0]
+            player2_cards = [f"{card.name} ({card.power})" for card in location.cards if card.owner == 1]
 
             max_cards = max(len(player1_cards), len(player2_cards))
             player1_cards += [''] * (max_cards - len(player1_cards))
@@ -229,8 +237,8 @@ class Game:
             self.current_turn = turn + 1
             print(f"Turn {self.current_turn}")
             self.play_turn()
+            self.apply_ongoing_abilities()
             self.end_of_turn()
-            self.apply_ongoing_abilities()  # Add this line to apply ongoing abilities
             self.display_game_state()
 
         self.determine_winner()

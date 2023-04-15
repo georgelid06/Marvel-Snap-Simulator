@@ -25,6 +25,9 @@ class Location:
         total_power = sum(card.power for card in self.cards if card.owner == player_number)
         card_list = [(card.name, card.power) for card in self.cards if card.owner == player_number]
         card_list.clear
+        for card in self.cards:
+            if "Iron Man" in card.name:
+                total_power *= 2
         return total_power
 
     def determine_winner(self):
