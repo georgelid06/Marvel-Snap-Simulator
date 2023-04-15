@@ -11,6 +11,8 @@ class Location:
         self.end_of_turn_effect = end_of_turn_effect
         self.cards = []
         self.cards_this_turn = []
+        self.player1_played_card = False
+        self.player2_played_card = False
         self.revealed = False
 
     def __str__(self):
@@ -39,9 +41,9 @@ class Location:
         else:
             return None
         
-    def can_play_card_at_location(card, location, current_turn):
+    def can_play_card_at_location(card, location, current_turn, player_energy):
         # Check if the card's energy cost is less than or equal to the player's energy
-        if card.energy_cost > location.cards_this_turn[0].owner.energy:
+        if card.energy_cost > player_energy:
             return False
 
         # Check if the location has a specific rule that prevents the card from being played
@@ -75,17 +77,18 @@ def generate_all_locations():
         location = player.game.locations[location_index]
 
         # Find the card(s) with the highest power
-        highest_power = max(location.cards, key=lambda c: c.power).power
-        highest_power_cards = [c for c in location.cards if c.power == highest_power]
+        highest_power = max(location.cards, key=lambda c: c.base_power).base_power
+        highest_power_cards = [c for c in location.cards if c.base_power == highest_power]
 
         # Double the power of the highest power card(s)
         for c in highest_power_cards:
-            c.power *= 2
+            if c.base_power == highest_power:
+                c.power = c.base_power * 2
 
         # Undo the doubling of the power for the other cards
         for c in location.cards:
-            if c not in highest_power_cards and c.power >= 1:
-                c.power //= 2
+            if c not in highest_power_cards and c.power > c.base_power:
+                c.power = c.base_power
 
     def the_big_house_effect(card, player, location):
         if card.energy_cost in [4, 5, 6]:
@@ -98,7 +101,6 @@ def generate_all_locations():
 
     def the_vault_no_play_on_turn_six(location, current_turn):
         return current_turn != 6
-
 
     def stark_tower_end_of_turn_five(location_index, game, current_turn):
         if current_turn == 5:

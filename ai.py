@@ -1,4 +1,5 @@
 import random
+from location import Location
 
 class AIPlayer:
     def __init__(self, game, player_number, all_cards):
@@ -11,21 +12,20 @@ class AIPlayer:
         self.hand = self.draw_starting_hand(self.deck)
         
 
+
     def choose_card_and_location(self):
-        playable_cards_indices = [i for i, card in enumerate(self.hand) if self.game.locations[self.chosen_location_index].can_play_card(card, self.player_number - 1)]
-        playable_cards = [card for card in self.hand if self.game.locations[self.chosen_location_index].can_play_card(card, self.player_number - 1)]
-        if not playable_cards_indices:
+        valid_play_options = []
+
+        for card_index, card in enumerate(self.hand):
+            if card.energy_cost <= self.energy:
+                for location_index, location in enumerate(self.game.locations):
+                    if (location.can_play_card is None or location.can_play_card(card, self.player_number - 1)) and Location.can_play_card_at_location(card, location, self.game.current_turn, self.energy) and sum(1 for c in location.cards if c.owner == self) < 4:
+                        valid_play_options.append((card_index, location_index))
+
+        if valid_play_options:
+            return random.choice(valid_play_options)
+        else:
             return None, None
-
-        chosen_card_index = random.choice(playable_cards_indices)
-        chosen_location_index = random.choice(range(len(self.game.locations)))
-
-        # Ensuring the location does not already have 4 cards from the player.
-        while sum(1 for card in self.game.locations[chosen_location_index].cards if card.owner == self.player_number - 1) >= 4:
-            chosen_location_index = random.choice(range(len(self.game.locations)))
-            chosen_card_index = random.choice(playable_cards_indices)
-
-        return chosen_card_index, chosen_location_index
 
     def draw_starting_deck(self, all_cards):
         deck = random.sample(all_cards, 12)
