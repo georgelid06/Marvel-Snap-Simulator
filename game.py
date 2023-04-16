@@ -16,11 +16,13 @@ class Game:
         self.current_location = 0
         self.prepare_game()
 
-    def play_cards(self, card_index, player_number, location_index):
+    def play_card(self, player_number, card, location_number):
         player = self.players[player_number - 1]
-        card = player.hand[card_index]  # Get the card from the hand using the index
-        card_copy = copy.deepcopy(card)  # Create a deep copy of the card to store in location.cards and player.played_cards
-        location = self.locations[location_index]
+        location = self.locations[location_number]
+        card_copy = copy.deepcopy(card)
+        card_copy.owner = player_number - 1
+        card_copy.turn_played = self.current_turn
+        card_copy.location = location_number
 
         # Ensuring the location does not already have 4 cards from the player.
         if sum(1 for card in location.cards if card.owner == player_number - 1) >= 4:
@@ -29,7 +31,7 @@ class Game:
 
         if card.energy_cost <= player.energy:
             card_copy.owner = player_number - 1
-            card_copy.location = location_index
+            card_copy.location = location_number
             location.cards.append(card_copy)
 
             if player_number == 1:
@@ -43,16 +45,18 @@ class Game:
             if card.ability is not None:
                 card.ability.effect(card_copy, self, card_copy.owner)  # Updated this line to use card_copy
 
-            if location.effect is not None:
-                location.effect(card_copy, player, location_index)  # Updated this line to use card_copy
-
-            # Consume the card's energy cost from the player's energy pool
             player.energy -= card.energy_cost
 
             # Update the player's turn_energy_spent
             player.turn_energy_spent += card.energy_cost
 
-            #print("CARD PLAYED BY PLAYER:", card_copy.owner, "CARD =", card_copy)
+            # Check for Hawkeye cards and apply the effect if necessary
+            hawkeye_cards = [c for c in location.cards if c.name == "Hawkeye" and c.turn_played == self.current_turn - 1 and not c.hawkeye_effect_applied]
+            if hawkeye_cards:
+                for hawkeye_card in hawkeye_cards:
+                    if (player_number == 1 and location.player1_played_card) or (player_number == 2 and location.player2_played_card):
+                        hawkeye_card.power += 2  # Apply the effect
+                        hawkeye_card.hawkeye_effect_applied = True  # Set the flag after applying the effect
         else:
             print(f"Player {player_number} cannot play {card.name} yet. It costs more energy than the current turn.")
 
@@ -82,7 +86,7 @@ class Game:
                 if chosen_card_index is not None and location_index is not None:
                     card = player.hand[chosen_card_index]
                     if card.energy_cost <= player.energy:
-                        self.play_cards(chosen_card_index, player_number, location_index)
+                        self.play_card(chosen_card_index, player_number, location_index)
                         player.played_cards.append(card)
                         player.played_card_locations.append(location_index)
                     else:
@@ -132,20 +136,25 @@ class Game:
                         if location_card is not None:
                             location_card.power = card.power  # Update the power of the card in location.cards
                         print("Card: ", card.name, "Has increased from ", card.base_power, "to ", card.power)
-                    hawkeye_location = next((l for l in game.locations if l.effect_description == "On Reveal: If you play a card here next turn, +2 Power"), None)
-                    if hawkeye_location is not None and hawkeye_location.cards:
-                        hawkeye_card = next((c for c in hawkeye_location.cards if c.name == "Hawkeye"), None)
-                        if hawkeye_card is not None and hawkeye_card.turn_played == game.current_turn - 1:
-                            print("Hawkeye was played last turn")
-
 
     def apply_ongoing_abilities(self):
         for player_number in range(1, 3):
             player = self.players[player_number - 1]
-            for card in player.played_cards:
-                if card.location is not None and card.ability is not None and card.ability.ability_type == "Ongoing":
-                    card.ability.effect(card, self, player_number - 1)
+            for location in self.locations:
+                for card in location.cards:
+                    if card.owner == player_number - 1 and card.ability is not None and card.ability.ability_type == "Ongoing":
+                        card.ability.effect(card, self, player_number - 1)
+            self.apply_location_effects(player_number)
 
+
+    def apply_location_effects(self, player_number):
+        player = self.players[player_number - 1]
+        for location_index, location in enumerate(self.locations):
+            if location.effect and location.revealed:
+                for card in location.cards:
+                    if card.owner == player_number and not card.location_effect_applied:
+                        location.effect(card, player, location_index)  # Pass location_index instead of location
+                        card.location_effect_applied = True  # Set the flag after applying the effect
 
     def end_of_turn(self):        
         # Reset energy for each player according to the current turn

@@ -24,9 +24,9 @@ class Location:
     def calculate_total_power(self, player_number):
         total_power = sum(card.power for card in self.cards if card.owner == player_number)
         card_list = [(card.name, card.power) for card in self.cards if card.owner == player_number]
-        card_list.clear
+        card_list.clear()
         for card in self.cards:
-            if "Iron Man" in card.name:
+            if card.name == "Iron Man" and card.owner == player_number:
                 total_power *= 2
         return total_power
 
@@ -93,17 +93,10 @@ def generate_all_locations():
             if c not in highest_power_cards and c.power > c.base_power:
                 c.power = c.base_power
 
-    def the_big_house_effect(card, player, location):
-        if card.energy_cost in [4, 5, 6]:
-            card.location.cards.remove(card)
-
     def negative_zone_effect(card, player, location):
         card.power -= 3
     def wakanda_no_destroy(location):
         pass  # Do not destroy cards in this location
-
-    def the_vault_no_play_on_turn_six(location, current_turn):
-        return current_turn != 6
 
     def stark_tower_end_of_turn_five(location_index, game, current_turn):
         if current_turn == 5:
@@ -123,8 +116,8 @@ def generate_all_locations():
         Location("Wakanda", "Cards here can't be destroyed.", no_destroy=wakanda_no_destroy),
         Location("Tinkerer's Workshop", "+1 Energy this turn.", effect=tinkerers_workshop_effect),
         Location("Throne Room", "Card(s) here with the highest Power have their Power doubled.", effect=throne_room_effect),
-        Location("The Vault", "On turn 6, cards can't be played here.", can_play_card=the_vault_no_play_on_turn_six),
-        Location("The Big House", "4, 5, and 6-Cost cards can't be played here.", effect=the_big_house_effect),
+        Location("The Vault", "On turn 6, cards can't be played here."),
+        Location("The Big House", "4, 5, and 6-Cost cards can't be played here."),
         Location("Stark Tower", "At the end of turn 5, give all cards here +2 Power.", end_of_turn_effect=stark_tower_end_of_turn_five),
         Location("Negative Zone", "Cards here have -3 Power.", effect=negative_zone_effect),
         Location("Murderworld", "At the end of turn 3, destroy all cards here.", end_of_turn_effect=murderworld_end_of_turn_three),
