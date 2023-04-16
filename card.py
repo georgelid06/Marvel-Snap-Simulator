@@ -27,13 +27,6 @@ class Ability:
 
 def generate_all_cards():
     # Define the card abilities/effects here
-    def hawkeye_effect(card, game, card_owner):
-        if game.current_turn == card.turn_played + 1:
-            location = game.locations[card.location]
-            card_last_turn = [c for c in location.cards if c.turn_played == game.current_turn - 1]
-            if card_last_turn:
-                card.power += 2  # Add the bonus power
-
     def medusa_effect(card, game, card_owner):  # Add location_index parameter
         if card.location == 1:  # Middle location
             return 2
@@ -59,6 +52,9 @@ def generate_all_cards():
 
     def star_lord_effect(card, game, card_owner):  # Add the 'location' parameter
         location = game.locations[card.location]
+        print(location.player1_played_card)
+        print(location.player2_played_card)
+
         if card_owner == 1:
             if location.player2_played_card == True:
                 return 3
@@ -67,7 +63,6 @@ def generate_all_cards():
                 return 3
         return 0
 
-    hawkeye_ability = Ability(hawkeye_effect, "On Reveal")
     medusa_ability = Ability(medusa_effect, "On Reveal")
     punisher_ability = Ability(punisher_effect, "Ongoing")
     sentinel_ability = Ability(sentinel_effect, "On Reveal")
@@ -77,7 +72,7 @@ def generate_all_cards():
     all_cards = [
         Card("Abomination", 5, 9, "No ability"),
         Card("Cyclops", 3, 4, "No ability"),
-        Card("Hawkeye", 1, 1, "On Reveal: If you play a card here next turn, +2 Power.", hawkeye_ability),
+        Card("Hawkeye", 1, 1, "On Reveal: If you play a card here next turn, +2 Power."),
         Card("Hulk", 6, 12, "No ability"),
         Card("Iron Man", 5, 0, "Ongoing: Your total Power is doubled at this Location."),
         Card("Medusa", 2, 2, "On Reveal: If this is at the middle Location, +2 Power.", medusa_ability),

@@ -16,7 +16,7 @@ class Game:
         self.current_location = 0
         self.prepare_game()
 
-    def play_card(self, player_number, card, location_number):
+    def play_card(self, card, player_number, location_number):
         player = self.players[player_number - 1]
         location = self.locations[location_number]
         card_copy = copy.deepcopy(card)
@@ -50,11 +50,12 @@ class Game:
             # Update the player's turn_energy_spent
             player.turn_energy_spent += card.energy_cost
 
-            # Check for Hawkeye cards and apply the effect if necessary
-            hawkeye_cards = [c for c in location.cards if c.name == "Hawkeye" and c.turn_played == self.current_turn - 1 and not c.hawkeye_effect_applied]
+        # Check for Hawkeye cards and apply the effect if necessary
+            hawkeye_cards = [c for c in location.cards if c.name == "Hawkeye" and c.turn_played == self.current_turn - 1 and not c.hawkeye_effect_applied and c.location == location_number]
             if hawkeye_cards:
                 for hawkeye_card in hawkeye_cards:
-                    if (player_number == 1 and location.player1_played_card) or (player_number == 2 and location.player2_played_card):
+                    last_played_card = location.cards[-1]
+                    if last_played_card.owner == hawkeye_card.owner and last_played_card.turn_played == self.current_turn:
                         hawkeye_card.power += 2  # Apply the effect
                         hawkeye_card.hawkeye_effect_applied = True  # Set the flag after applying the effect
         else:
@@ -86,7 +87,7 @@ class Game:
                 if chosen_card_index is not None and location_index is not None:
                     card = player.hand[chosen_card_index]
                     if card.energy_cost <= player.energy:
-                        self.play_card(chosen_card_index, player_number, location_index)
+                        self.play_card(card, player_number, location_index)
                         player.played_cards.append(card)
                         player.played_card_locations.append(location_index)
                     else:
@@ -214,11 +215,11 @@ class Game:
 
         # Display decks and hands of both players
         print("\nPlayer 1 deck and hand:")
-        print("Deck:", [card.name for card in self.players[0].deck])
+        print("Deck:", [f"{card.name} ({card.power})" for card in self.players[0].deck])
         print("Hand:", [f"{card.name} ({card.power})" for card in self.players[0].hand])
         print("\n")
         print("Player 2 deck and hand:")
-        print("Deck:", [card.name for card in self.players[1].deck])
+        print("Deck:", [f"{card.name} ({card.power})" for card in self.players[1].deck])
         print("Hand:", [f"{card.name} ({card.power})" for card in self.players[1].hand])
         print("\n")
 
