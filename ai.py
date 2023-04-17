@@ -19,8 +19,7 @@ class AIPlayer:
                     return 2
         return 0
 
-
-    def evaluate_card_location_score(self, card, location):
+    def evaluate_card_location_score(self, card, location, location_index):
         if location is None:
             return 0
 
@@ -33,7 +32,7 @@ class AIPlayer:
         # Consider other card abilities that affect power
         if card.ability is not None:
             if card.ability.ability_type == "On Play" or card.ability.ability_type == "On Reveal":
-                power_bonus = card.ability.effect(card, self.game, card.owner)
+                power_bonus = card.ability.effect(card, self.game, card.owner, location_index)
                 if power_bonus is not None and power_bonus > 0:
                     score += power_bonus
 
@@ -60,7 +59,7 @@ class AIPlayer:
             # With the current card (if there's enough energy)
             if card.energy_cost <= remaining_energy:
                 for location_index, location in enumerate(self.game.locations):
-                    score = self.evaluate_card_location_score(card, location)  # Pass the `Location` object instead of the location index
+                    score = self.evaluate_card_location_score(card, location, location_index)
                     new_total_score = current_score + score
                     new_cards, new_locations, new_score = evaluate_combinations(remaining_energy - card.energy_cost, current_cards + [card_index], current_locations + [location_index], new_total_score, card_index + 1)
 
@@ -97,8 +96,6 @@ class AIPlayer:
                 deck.remove(card)  # Remove drawn cards from the deck
                 
         return hand
-
-
 
     def draw_card(self):
         if not self.deck:

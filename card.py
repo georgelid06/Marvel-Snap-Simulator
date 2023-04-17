@@ -27,18 +27,18 @@ class Ability:
 
 def generate_all_cards():
     # Define the card abilities/effects here
-    def medusa_effect(card, game, card_owner):  # Add location_index parameter
+    def medusa_effect(card, game, card_owner, location_index):  # Add location_index parameter
         if card.location == 1:  # Middle location
             return 2
         return 0
 
-    def punisher_effect(card, game, card_owner):
+    def punisher_effect(card, game, card_owner, location_index):
         location = game.locations[card.location]
         enemy_card_count = sum(1 for c in location.cards if c.owner != card_owner and c != card)  # Include the current card
         bonus_power = 1 * enemy_card_count
         card.power = card.base_power + bonus_power
 
-    def sentinel_effect(card, game, card_owner):
+    def sentinel_effect(card, game, card_owner, location_index):
         if card_owner is not None:
             player = game.players[card_owner]  # Get the player from the game object
             sentinel_card = None
@@ -52,10 +52,9 @@ def generate_all_cards():
                 player.hand.append(new_sentinel)
 
 
-    def star_lord_effect(card, game, card_owner):
+    def star_lord_effect(card, game, card_owner, location_index):
         location = game.locations[card.location]
         opponent = 1 if card_owner == 0 else 0
-
         if any(c.owner == opponent and c.turn_played == game.current_turn for c in location.cards):
             return 3
         return 0
