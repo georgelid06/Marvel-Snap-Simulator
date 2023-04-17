@@ -39,28 +39,25 @@ def generate_all_cards():
         card.power = card.base_power + bonus_power
 
     def sentinel_effect(card, game, card_owner):
-        player = game.players[card_owner]  # Get the player from the game object
-        sentinel_card = None
-        for c in player.deck:
-            if c.name == "Sentinel":
-                sentinel_card = c
-                break
+        if card_owner is not None:
+            player = game.players[card_owner]  # Get the player from the game object
+            sentinel_card = None
+            for c in player.deck:
+                if c.name == "Sentinel":
+                    sentinel_card = c
+                    break
 
-        if sentinel_card is not None:
-            player.hand.append(sentinel_card)
+            if sentinel_card is not None:
+                new_sentinel = Card(sentinel_card.name, sentinel_card.energy_cost, sentinel_card.power, sentinel_card.ability_description, sentinel_card.ability)
+                player.hand.append(new_sentinel)
 
 
-    def star_lord_effect(card, game, card_owner):  # Add the 'location' parameter
+    def star_lord_effect(card, game, card_owner):
         location = game.locations[card.location]
-        print(location.player1_played_card)
-        print(location.player2_played_card)
+        opponent = 1 if card_owner == 0 else 0
 
-        if card_owner == 1:
-            if location.player2_played_card == True:
-                return 3
-        else:
-            if location.player1_played_card == True:
-                return 3
+        if any(c.owner == opponent and c.turn_played == game.current_turn for c in location.cards):
+            return 3
         return 0
 
     medusa_ability = Ability(medusa_effect, "On Reveal")

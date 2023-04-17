@@ -10,7 +10,7 @@ class Game:
         self.current_turn = 1
         self.all_cards = generate_all_cards()
         self.all_locations = generate_all_locations()
-        self.players = [AIPlayer(self, 0, self.all_cards.copy()), AIPlayer(self, 1, self.all_cards.copy())]
+        self.players = [AIPlayer(self, 0, copy.deepcopy(self.all_cards)), AIPlayer(self, 1, copy.deepcopy(self.all_cards))]
         self.locations = [Location("Location 1", []), Location("Location 2", []), Location("Location 3", [])]
         self.current_turn = 0
         self.current_location = 0
@@ -41,9 +41,6 @@ class Game:
 
             player.hand.remove(card)
             player.played_cards.append(card_copy)
-
-            if card.ability is not None:
-                card.ability.effect(card_copy, self, card_copy.owner)  # Updated this line to use card_copy
 
             player.energy -= card.energy_cost
 
@@ -82,10 +79,12 @@ class Game:
         for player_number, player in enumerate(self.players, 1):
             player.played_cards = []
             player.played_card_locations = []
-            while True:
-                chosen_card_index, location_index = player.choose_card_and_location()
-                if chosen_card_index is not None and location_index is not None:
-                    card = player.hand[chosen_card_index]
+
+            chosen_card_indices, location_indices = player.choose_card_and_location()
+
+            if chosen_card_indices is not None and location_indices is not None:
+                for card_index, location_index in zip(chosen_card_indices, location_indices):
+                    card = player.hand[card_index]
                     if card.energy_cost <= player.energy:
                         self.play_card(card, player_number, location_index)
                         player.played_cards.append(card)
@@ -93,8 +92,8 @@ class Game:
                     else:
                         print(f"Player {player_number} cannot play {card.name} yet. It costs more energy than the current turn.")
                         break
-                else:
-                    break
+            else:
+                break
 
         # Determine the order in which players reveal cards
         player1_wins = 0
