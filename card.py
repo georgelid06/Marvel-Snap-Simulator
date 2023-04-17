@@ -14,8 +14,6 @@ class Card:
         self.location_effect_applied = False  # Add this flag
         self.hawkeye_effect_applied = False  # Add this flag for Hawkeye cards only
 
-
-
     def __repr__(self):
         return f"{self.name} (Energy: {self.energy_cost}, Power: {self.power}, Ability: {self.ability_description})"
 
@@ -23,7 +21,6 @@ class Ability:
     def __init__(self, effect, ability_type):
         self.effect = effect
         self.ability_type = ability_type
-
 
 def generate_all_cards():
     # Define the card abilities/effects here
@@ -40,20 +37,14 @@ def generate_all_cards():
 
     def sentinel_effect(card, game, card_owner, location_index):
         if card_owner is not None:
-            player = game.players[card_owner]  # Get the player from the game object
-            sentinel_card = None
-            for c in player.deck:
-                if c.name == "Sentinel":
-                    sentinel_card = c
-                    break
-
+            player = game.players[card.owner]            
             if sentinel_card is not None:
                 new_sentinel = Card(sentinel_card.name, sentinel_card.energy_cost, sentinel_card.power, sentinel_card.ability_description, sentinel_card.ability)
                 player.hand.append(new_sentinel)
 
 
     def star_lord_effect(card, game, card_owner, location_index):
-        location = game.locations[card.location]
+        location = location_index
         opponent = 1 if card_owner == 0 else 0
         if any(c.owner == opponent and c.turn_played == game.current_turn for c in location.cards):
             return 3

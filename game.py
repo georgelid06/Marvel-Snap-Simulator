@@ -129,7 +129,7 @@ class Game:
                 location = self.locations[card.location]
                 location_card = next((c for c in location.cards if c.owner == card.owner and c.name == card.name and c.location == card.location), None)
                 if card.ability is not None and card.ability.ability_type == "On Reveal":
-                    power_bonus = card.ability.effect(card, self, player_number - 1)
+                    power_bonus = card.ability.effect(card, self, player_number - 1, location)
                     if power_bonus is not None and power_bonus > 0:
                         card.power += power_bonus
                         # Update the location card's power value as well
@@ -143,7 +143,7 @@ class Game:
             for location in self.locations:
                 for card in location.cards:
                     if card.owner == player_number - 1 and card.ability is not None and card.ability.ability_type == "Ongoing":
-                        card.ability.effect(card, self, player_number - 1)
+                        card.ability.effect(card, self, player_number - 1, location)
             self.apply_location_effects(player_number)
 
 
@@ -245,6 +245,7 @@ class Game:
         for turn in range(6):  # Loop through the 6 turns
             self.current_turn = turn + 1
             print(f"Turn {self.current_turn}")
+
             self.play_turn()
             self.apply_ongoing_abilities()
             self.end_of_turn()

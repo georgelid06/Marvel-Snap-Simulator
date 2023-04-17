@@ -109,7 +109,6 @@ def generate_all_locations():
             location = game.locations[location_index]
             location.cards.clear()
 
-
     # Generate all locations
     all_locations = [
         Location("Xandar", "Cards here have +1 Power.", xandar_effect),
