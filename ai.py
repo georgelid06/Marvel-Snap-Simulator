@@ -10,6 +10,7 @@ class AIPlayer:
         self.energy = 1
         self.deck = self.draw_starting_deck(all_cards)
         self.hand = self.draw_starting_hand(self.deck)
+        self.played_cards=[]
 
     def choose_card_and_location(self):
         valid_plays = []

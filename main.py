@@ -4,5 +4,6 @@ from game import Game
 
 all_cards = generate_all_cards()
 all_locations = generate_all_locations()
-game = Game()
-game.play_game()
+for i in range (1,20):
+    game = Game()
+    game.play_game()

@@ -66,15 +66,17 @@ class Location:
             return False
 
         return True
+    
+    def apply_location_effect(self,game):
+        if self.name == "Tinkerer's Workshop":
+            game.players[0].energy += 1
+            game.players[1].energy += 1
 
 def generate_all_locations():
 
     # Define location effects here
     def xandar_effect(card, player, location):
         card.power += 1
-
-    def tinkerers_workshop_effect(card, player, location):
-        player.energy += 1
 
     def throne_room_effect(card, player, location_index):
         location = player.game.locations[location_index]
@@ -113,7 +115,7 @@ def generate_all_locations():
     all_locations = [
         Location("Xandar", "Cards here have +1 Power.", xandar_effect),
         Location("Wakanda", "Cards here can't be destroyed.", no_destroy=wakanda_no_destroy),
-        Location("Tinkerer's Workshop", "+1 Energy this turn.", effect=tinkerers_workshop_effect),
+        Location("Tinkerer's Workshop", "+1 Energy this turn."),
         Location("Throne Room", "Card(s) here with the highest Power have their Power doubled.", effect=throne_room_effect),
         Location("The Vault", "On turn 6, cards can't be played here."),
         Location("The Big House", "4, 5, and 6-Cost cards can't be played here."),
