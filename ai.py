@@ -12,6 +12,29 @@ class AIPlayer:
         self.hand = self.draw_starting_hand(self.deck)
         self.played_cards=[]
 
+        
+    def manualchoose_card_and_location(self):
+        valid_plays = []
+
+        # Iterate through the hand and find valid cards and their playable locations
+        for card_index, card in enumerate(self.hand):
+            if card.energy_cost <= self.energy:
+                for location_index, location in enumerate(self.game.locations):
+                    if Location.can_play_card_at_location(card, location, self.game.current_turn, self.energy):
+                        valid_plays.append((card_index, location_index))
+
+        # Display valid options for the user
+        print("Valid options:")
+        for i, (card_index, location_index) in enumerate(valid_plays):
+            print(f"{i + 1}. Play {self.hand[card_index].name} at location {self.game.locations[location_index].name}")
+
+        # Ask for user input to choose an option
+        choice = int(input("Choose an option by entering its number: ")) - 1
+        chosen_card_index, chosen_location_index = valid_plays[choice]
+
+        return [chosen_card_index], [chosen_location_index]
+
+
     def choose_card_and_location(self):
         valid_plays = []
         for card_index, card in enumerate(self.hand):

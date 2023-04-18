@@ -4,7 +4,6 @@ from card import Card, generate_all_cards
 from location import Location, generate_all_locations
 from ai import AIPlayer
 
-
 class Game:
     def __init__(self):
         self.current_turn = 1
@@ -130,10 +129,8 @@ class Game:
                     if card.ability is not None and card.ability.ability_type == "On Reveal":
                         power_bonus = card.ability.effect(card, self, player_number - 1, location)
                         if power_bonus is not None and power_bonus > 0:
-                            card.power += power_bonus
+                            card.bonus_power += power_bonus
                             # Update the location card's power value as well
-                            if location_card is not None:
-                                location_card.power = card.power  # Update the power of the card in location.cards
                             print("Card: ", card.name, "Has increased from ", card.base_power, "to ", card.power)
 
     def apply_ongoing_abilities(self):
@@ -154,6 +151,17 @@ class Game:
                     if card.owner == player_number and not card.location_effect_applied:
                         location.effect(card, player, location_index)  # Pass location_index instead of location
                         card.location_effect_applied = True  # Set the flag after applying the effect
+
+    def sort_bonuses(self):
+        for player_number in range(1, 3):
+            player = self.players[player_number - 1]
+            for location in self.locations:
+                for card in location.cards:
+                    location_card = next((c for c in location.cards if c.owner == card.owner and c.name == card.name and c.location == card.location), None)
+                    card.power = card.base_power + card.bonus_power
+                    if location_card is not None:
+                        location_card.power = card.power  # Update the power of the card in location.cards
+
 
     def end_of_turn(self):        
         # Reset energy for each player according to the current turn
@@ -251,6 +259,7 @@ class Game:
                 self.reveal_location()
             self.play_turn()
             self.apply_ongoing_abilities()
+            self.sort_bonuses
             self.end_of_turn()
             self.display_game_state()
 
