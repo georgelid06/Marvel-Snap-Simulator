@@ -72,8 +72,7 @@ class Game:
 
     def prepare_game(self):
         self.locations = self.generate_locations()
-        for _ in range(3):
-            self.reveal_location()
+        self.reveal_location()
 
     def play_turn(self):
         for player_number, player in enumerate(self.players, 1):
@@ -119,8 +118,6 @@ class Game:
         # Reveal cards and apply card and location effects in the determined order
         for player_number in reveal_order:
             self.reveal_cards(player_number)
-
-
 
     def reveal_cards(self, player_number):
         player = self.players[player_number - 1]
@@ -204,7 +201,10 @@ class Game:
             print()
 
         for location in self.locations:
-            print("{:^25}".format(location.name), end=" ")
+            if location.revealed:
+                print("{:^25}".format(location.name), end=" ")
+            else:
+                print("{:^25}".format("???"), end=" ")
         print()
 
         for row in range(max_rows):
@@ -245,7 +245,8 @@ class Game:
         for turn in range(6):  # Loop through the 6 turns
             self.current_turn = turn + 1
             print(f"Turn {self.current_turn}")
-
+            if 4 > self.current_turn > 1:
+                self.reveal_location()
             self.play_turn()
             self.apply_ongoing_abilities()
             self.end_of_turn()
