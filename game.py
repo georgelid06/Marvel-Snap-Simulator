@@ -3,7 +3,8 @@ import copy
 from card import Card, generate_all_cards
 from location import Location, generate_all_locations
 from ai import AIPlayer
-
+from data import update_deck_data, save_deck_data, load_deck_data, get_average_power
+import json
 
 class Game:
     def __init__(self):
@@ -15,6 +16,7 @@ class Game:
         self.current_turn = 0
         self.current_location = 0
         self.prepare_game()
+        self.winner=2
 
     def play_card(self, card, player_number, location_number):
         player = self.players[player_number - 1]
@@ -26,7 +28,7 @@ class Game:
 
         # Ensuring the location does not already have 4 cards from the player.
         if sum(1 for card in location.cards if card.owner == player_number - 1) >= 4:
-            print(f"Player {player_number} cannot play {card.name} at this location. It already has 4 cards from the player.")
+            #print(f"Player {player_number} cannot play {card.name} at this location. It already has 4 cards from the player.")
             return
 
         if card.energy_cost <= player.energy:
@@ -56,7 +58,8 @@ class Game:
                         hawkeye_card.power += 2  # Apply the effect
                         hawkeye_card.hawkeye_effect_applied = True  # Set the flag after applying the effect
         else:
-            print(f"Player {player_number} cannot play {card.name} yet. It costs more energy than the current turn.")
+            #print(f"Player {player_number} cannot play {card.name} yet. It costs more energy than the current turn.")
+            return
 
     def reveal_location(self):
         if self.current_location >= len(self.locations):
@@ -90,7 +93,7 @@ class Game:
                         player.played_cards.append(card)
                         player.played_card_locations.append(location_index)
                     else:
-                        print(f"Player {player_number} cannot play {card.name} yet. It costs more energy than the current turn.")
+                        #print(f"Player {player_number} cannot play {card.name} yet. It costs more energy than the current turn.")
                         break
             else:
                 break
@@ -134,7 +137,7 @@ class Game:
                             # Update the location card's power value as well
                             if location_card is not None:
                                 location_card.power = card.power  # Update the power of the card in location.cards
-                            print("Card: ", card.name, "Has increased from ", card.base_power, "to ", card.power)
+                            #print("Card: ", card.name, "Has increased from ", card.base_power, "to ", card.power)
 
     def apply_ongoing_abilities(self):
         for player_number in range(1, 3):
@@ -228,8 +231,8 @@ class Game:
     def determine_winner(self):
         player1_score = sum(location.calculate_total_power(0) for location in self.locations)
         player2_score = sum(location.calculate_total_power(1) for location in self.locations)
-        print("Player 1 had a total power of:", player1_score)
-        print("Player 2 had a total power of:", player2_score)
+        #print("Player 1 had a total power of:", player1_score)
+        #print("Player 2 had a total power of:", player2_score)
         player1_wins = 0
         player2_wins = 0
         for location in self.locations:
@@ -238,20 +241,30 @@ class Game:
             elif location.calculate_total_power(0) < location.calculate_total_power(1):
                 player2_wins += 1
 
+        decks_data = load_deck_data('decks_data.json')
         if player1_wins > player2_wins:
-            print("Player 1 Wins!")
+            #print("Player 1 Wins!")
+            update_deck_data(self.players[0].starting_deck, "win", player1_score, decks_data)
+            update_deck_data(self.players[1].starting_deck, "loss", player2_score, decks_data)
+
         elif player1_wins < player2_wins:
-            print("Player 2 Wins!")
+            #print("Player 2 Wins!")
+            update_deck_data(self.players[0].starting_deck, "loss", player1_score, decks_data)
+            update_deck_data(self.players[1].starting_deck, "win", player2_score, decks_data)
+
+        save_deck_data(decks_data, 'decks_data.json')
+
 
     def play_game(self):
         for turn in range(6):  # Loop through the 6 turns
             self.current_turn = turn + 1
-            print(f"Turn {self.current_turn}")
+            #print(f"Turn {self.current_turn}")
             if 4 > self.current_turn > 1:
                 self.reveal_location()
             self.play_turn()
             self.apply_ongoing_abilities()
             self.end_of_turn()
-            self.display_game_state()
+            #self.display_game_state()
 
         self.determine_winner()
+
