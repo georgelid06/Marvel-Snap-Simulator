@@ -1,5 +1,7 @@
 import random
 from location import Location
+import copy
+
 
 class AIPlayer:
     def __init__(self, game, player_number, all_cards):
@@ -9,6 +11,7 @@ class AIPlayer:
         self.turn_energy_spent = 0
         self.energy = 1
         self.deck = self.draw_starting_deck(all_cards)
+        self.starting_deck = copy.deepcopy(self.deck)
         self.hand = self.draw_starting_hand(self.deck)
         self.played_cards=[]
 
