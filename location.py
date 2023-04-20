@@ -76,7 +76,7 @@ def generate_all_locations():
 
     # Define location effects here
     def xandar_effect(card, player, location):
-        card.bonus_power += 1
+        card.location_power += 1
 
     def throne_room_effect(card, player, location_index):
         location = player.game.locations[location_index]
@@ -88,15 +88,15 @@ def generate_all_locations():
         # Double the power of the highest power card(s)
         for c in highest_power_cards:
             if c.base_power == highest_power:
-                c.power = c.base_power * 2
+                c.location_power = c.base_power + c.ongoing_power + c.ongoing_power
 
         # Undo the doubling of the power for the other cards
         for c in location.cards:
             if c not in highest_power_cards and c.power > c.base_power:
-                c.power = c.base_power
+                c.location_power = c.base_power
 
     def negative_zone_effect(card, player, location):
-        card.bonus_power -= 3
+        card.location_power -= 3
     def wakanda_no_destroy(location):
         pass  # Do not destroy cards in this location
 
@@ -104,7 +104,7 @@ def generate_all_locations():
         if current_turn == 5:
             location = game.locations[location_index]
             for card in location.cards:
-                card.bonus_power += 2
+                card.location_power += 2
 
     def murderworld_end_of_turn_three(location_index, game, current_turn):
         if current_turn == 3:

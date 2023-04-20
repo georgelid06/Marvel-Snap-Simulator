@@ -130,8 +130,6 @@ class Game:
                         power_bonus = card.ability.effect(card, self, player_number - 1, location)
                         if power_bonus is not None and power_bonus > 0:
                             card.bonus_power += power_bonus
-                            # Update the location card's power value as well
-                            print("Card: ", card.name, "Has increased from ", card.base_power, "to ", card.power)
 
     def apply_ongoing_abilities(self):
         for player_number in range(1, 3):
@@ -158,7 +156,8 @@ class Game:
             for location in self.locations:
                 for card in location.cards:
                     location_card = next((c for c in location.cards if c.owner == card.owner and c.name == card.name and c.location == card.location), None)
-                    card.power = card.base_power + card.bonus_power
+                    card.power = card.base_power + card.bonus_power + card.ongoing_power + card.location_power
+                    print(card.name, "has increased to", card.power, "from ", card.base_power)
                     if location_card is not None:
                         location_card.power = card.power  # Update the power of the card in location.cards
 
@@ -259,7 +258,7 @@ class Game:
                 self.reveal_location()
             self.play_turn()
             self.apply_ongoing_abilities()
-            self.sort_bonuses
+            self.sort_bonuses()
             self.end_of_turn()
             self.display_game_state()
 

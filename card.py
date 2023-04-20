@@ -8,6 +8,8 @@ class Card:
         self.power = power
         self.base_power = power
         self.bonus_power = 0
+        self.ongoing_power = 0
+        self.location_power = 0
         self.ability_description = ability_description
         self.ability = ability
         self.owner = None
@@ -36,7 +38,7 @@ def generate_all_cards():
         location = game.locations[card.location]
         enemy_card_count = sum(1 for c in location.cards if c.owner != card_owner and c != card)  # Include the current card
         punisher_power = 1 * enemy_card_count
-        card.power = card.base_power + card.bonus_power + punisher_power
+        card.ongoing_power = punisher_power
 
     def sentinel_effect(card, game, card_owner, location_index):
         if card_owner is not None:
